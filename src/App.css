@@ -79,6 +79,12 @@ body.dark-mode {
   font-weight: 700;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .theme-toggle {
   background: rgba(255, 255, 255, 0.1);
   border: none;

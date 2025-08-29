@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Droplets, Beef, Target, TrendingUp, Calendar, Plus, Minus, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { format, startOfWeek, addDays, isToday, subDays, addDays as addDaysFn } from 'date-fns';
@@ -24,34 +24,63 @@ function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [tempEntry, setTempEntry] = useState({ protein: 0, water: 0 });
   const [darkMode, setDarkMode] = useState(false);
+  const isInitialized = useRef(false);
 
   // Load data from localStorage on component mount
   useEffect(() => {
+    if (isInitialized.current) return;
+    
     const savedEntries = localStorage.getItem('intakeEntries');
     const savedGoals = localStorage.getItem('intakeGoals');
     const savedDarkMode = localStorage.getItem('darkMode');
     
     if (savedEntries) {
-      setEntries(JSON.parse(savedEntries));
+      try {
+        const parsedEntries = JSON.parse(savedEntries);
+        setEntries(parsedEntries);
+      } catch (error) {
+        console.error('Error parsing entries:', error);
+      }
     }
     if (savedGoals) {
-      setGoals(JSON.parse(savedGoals));
+      try {
+        const parsedGoals = JSON.parse(savedGoals);
+        setGoals(parsedGoals);
+      } catch (error) {
+        console.error('Error parsing goals:', error);
+      }
     }
     if (savedDarkMode) {
-      setDarkMode(JSON.parse(savedDarkMode));
+      try {
+        const parsedDarkMode = JSON.parse(savedDarkMode);
+        setDarkMode(parsedDarkMode);
+      } catch (error) {
+        console.error('Error parsing dark mode:', error);
+      }
     }
+    
+    isInitialized.current = true;
   }, []);
 
   // Save data to localStorage whenever entries, goals, or darkMode change
   useEffect(() => {
+    if (!isInitialized.current) {
+      return;
+    }
     localStorage.setItem('intakeEntries', JSON.stringify(entries));
   }, [entries]);
 
   useEffect(() => {
+    if (!isInitialized.current) {
+      return;
+    }
     localStorage.setItem('intakeGoals', JSON.stringify(goals));
   }, [goals]);
 
   useEffect(() => {
+    if (!isInitialized.current) {
+      return;
+    }
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
     document.body.classList.toggle('dark-mode', darkMode);
   }, [darkMode]);
@@ -139,13 +168,15 @@ function App() {
       <header className="header">
         <div className="header-top">
           <h1>Intake App</h1>
-          <button 
-            className="theme-toggle"
-            onClick={() => setDarkMode(!darkMode)}
-            aria-label="Toggle dark mode"
-          >
-            {darkMode ? <Sun className="icon" /> : <Moon className="icon" />}
-          </button>
+          <div className="header-actions">
+            <button 
+              className="theme-toggle"
+              onClick={() => setDarkMode(!darkMode)}
+              aria-label="Toggle dark mode"
+            >
+              {darkMode ? <Sun className="icon" /> : <Moon className="icon" />}
+            </button>
+          </div>
         </div>
         <div className="date-navigation">
           <button 
