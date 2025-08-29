@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Droplets, Beef, Target, TrendingUp, Calendar, Plus, Minus } from 'lucide-react';
+import { Droplets, Beef, Target, TrendingUp, Calendar, Plus, Minus, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { format, startOfWeek, addDays, isToday } from 'date-fns';
+import { format, startOfWeek, addDays, isToday, subDays, addDays as addDaysFn } from 'date-fns';
 import './App.css';
 
 interface IntakeEntry {
@@ -23,11 +23,13 @@ function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddModal, setShowAddModal] = useState(false);
   const [tempEntry, setTempEntry] = useState({ protein: 0, water: 0 });
+  const [darkMode, setDarkMode] = useState(false);
 
   // Load data from localStorage on component mount
   useEffect(() => {
     const savedEntries = localStorage.getItem('intakeEntries');
     const savedGoals = localStorage.getItem('intakeGoals');
+    const savedDarkMode = localStorage.getItem('darkMode');
     
     if (savedEntries) {
       setEntries(JSON.parse(savedEntries));
@@ -35,9 +37,12 @@ function App() {
     if (savedGoals) {
       setGoals(JSON.parse(savedGoals));
     }
+    if (savedDarkMode) {
+      setDarkMode(JSON.parse(savedDarkMode));
+    }
   }, []);
 
-  // Save data to localStorage whenever entries or goals change
+  // Save data to localStorage whenever entries, goals, or darkMode change
   useEffect(() => {
     localStorage.setItem('intakeEntries', JSON.stringify(entries));
   }, [entries]);
@@ -45,6 +50,11 @@ function App() {
   useEffect(() => {
     localStorage.setItem('intakeGoals', JSON.stringify(goals));
   }, [goals]);
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    document.body.classList.toggle('dark-mode', darkMode);
+  }, [darkMode]);
 
   const today = format(currentDate, 'yyyy-MM-dd');
   const todayEntries = entries.filter(entry => entry.date === today);
@@ -70,12 +80,35 @@ function App() {
     }
   };
 
+  const addQuickWater = (amount: number) => {
+    const newEntry: IntakeEntry = {
+      id: Date.now().toString(),
+      date: today,
+      protein: 0,
+      water: amount,
+      timestamp: Date.now()
+    };
+    setEntries(prev => [...prev, newEntry]);
+  };
+
   const removeEntry = (id: string) => {
     setEntries(prev => prev.filter(entry => entry.id !== id));
   };
 
   const updateGoal = (type: 'protein' | 'water', value: number) => {
     setGoals(prev => ({ ...prev, [type]: Math.max(0, value) }));
+  };
+
+  const navigateDate = (direction: 'prev' | 'next') => {
+    if (direction === 'prev') {
+      setCurrentDate(prev => subDays(prev, 1));
+    } else {
+      setCurrentDate(prev => addDaysFn(prev, 1));
+    }
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
   };
 
   // Generate weekly data for charts
@@ -102,12 +135,38 @@ function App() {
   const weeklyData = getWeeklyData();
 
   return (
-    <div className="app">
+    <div className={`app ${darkMode ? 'dark' : ''}`}>
       <header className="header">
-        <h1>Intake Tracker</h1>
-        <div className="date-selector">
-          <Calendar className="icon" />
-          <span>{format(currentDate, 'MMMM d, yyyy')}</span>
+        <div className="header-top">
+          <h1>Intake App</h1>
+          <button 
+            className="theme-toggle"
+            onClick={() => setDarkMode(!darkMode)}
+            aria-label="Toggle dark mode"
+          >
+            {darkMode ? <Sun className="icon" /> : <Moon className="icon" />}
+          </button>
+        </div>
+        <div className="date-navigation">
+          <button 
+            className="nav-button"
+            onClick={() => navigateDate('prev')}
+            aria-label="Previous day"
+          >
+            <ChevronLeft className="icon" />
+          </button>
+          <div className="date-selector" onClick={goToToday}>
+            <Calendar className="icon" />
+            <span>{format(currentDate, 'MMMM d, yyyy')}</span>
+            {!isToday(currentDate) && <span className="today-indicator">(Click for today)</span>}
+          </div>
+          <button 
+            className="nav-button"
+            onClick={() => navigateDate('next')}
+            aria-label="Next day"
+          >
+            <ChevronRight className="icon" />
+          </button>
         </div>
       </header>
 
@@ -145,6 +204,29 @@ function App() {
               </div>
               <div className="progress-percentage">{waterProgress.toFixed(0)}%</div>
             </div>
+          </div>
+        </section>
+
+        {/* Quick Water Buttons */}
+        <section className="quick-water-section">
+          <h2>Quick Water</h2>
+          <div className="quick-water-buttons">
+            <button 
+              className="quick-water-btn small"
+              onClick={() => addQuickWater(250)}
+            >
+              <Droplets className="icon" />
+              <span>Cup</span>
+              <span className="amount">250ml</span>
+            </button>
+            <button 
+              className="quick-water-btn bottle"
+              onClick={() => addQuickWater(500)}
+            >
+              <Droplets className="icon" />
+              <span>Bottle</span>
+              <span className="amount">500ml</span>
+            </button>
           </div>
         </section>
 
@@ -261,6 +343,11 @@ function App() {
           </div>
         </section>
       </main>
+
+      {/* Barbell Emoji at Bottom */}
+      <div className="bottom-emoji">
+        <span role="img" aria-label="barbell">🏋️‍♂️</span>
+      </div>
 
       {/* Add Entry Modal */}
       {showAddModal && (

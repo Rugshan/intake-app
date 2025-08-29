@@ -23,6 +23,15 @@
   --radius-lg: 0.75rem;
 }
 
+/* Dark Mode Variables */
+.dark {
+  --background-color: #0f172a;
+  --surface-color: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -32,12 +41,19 @@ body {
   background-color: var(--background-color);
   color: var(--text-primary);
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Apply dark mode to body when dark class is present */
+body.dark-mode {
+  background-color: var(--background-color);
 }
 
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 /* Header Styles */
@@ -51,10 +67,55 @@ body {
   z-index: 100;
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 .header h1 {
   font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+}
+
+.theme-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.date-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nav-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.nav-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
 }
 
 .date-selector {
@@ -63,6 +124,22 @@ body {
   gap: 0.5rem;
   font-size: 1.1rem;
   opacity: 0.9;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.date-selector:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.today-indicator {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-left: 0.5rem;
 }
 
 .icon {
@@ -77,6 +154,9 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  padding-bottom: 6rem; /* Space for bottom emoji */
+  background-color: var(--background-color);
+  transition: background-color 0.3s ease;
 }
 
 /* Section Styles */
@@ -87,6 +167,7 @@ section {
   margin-bottom: 2rem;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 section h2 {
@@ -104,7 +185,7 @@ section h2 {
 }
 
 .progress-card {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: linear-gradient(135deg, var(--background-color) 0%, var(--surface-color) 100%);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   border: 1px solid var(--border-color);
@@ -185,6 +266,81 @@ section h2 {
   font-weight: 600;
   color: var(--text-secondary);
   font-size: 0.875rem;
+}
+
+/* Quick Water Section */
+.quick-water-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.quick-water-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--surface-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-primary);
+}
+
+.quick-water-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.quick-water-btn .icon {
+  color: var(--primary-color);
+  width: 2rem;
+  height: 2rem;
+}
+
+.quick-water-btn span {
+  font-weight: 600;
+}
+
+.quick-water-btn .amount {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.quick-water-btn.small {
+  border-color: #10b981;
+}
+
+.quick-water-btn.small .icon {
+  color: #10b981;
+}
+
+.quick-water-btn.medium {
+  border-color: #3b82f6;
+}
+
+.quick-water-btn.medium .icon {
+  color: #3b82f6;
+}
+
+.quick-water-btn.large {
+  border-color: #8b5cf6;
+}
+
+.quick-water-btn.large .icon {
+  color: #8b5cf6;
+}
+
+.quick-water-btn.bottle {
+  border-color: #06b6d4;
+}
+
+.quick-water-btn.bottle .icon {
+  color: #06b6d4;
 }
 
 /* Chart Section */
@@ -365,6 +521,16 @@ section h2 {
   color: var(--secondary-color);
 }
 
+/* Bottom Emoji */
+.bottom-emoji {
+  text-align: center;
+  padding: 2rem;
+  font-size: 3rem;
+  background: var(--background-color);
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
@@ -493,6 +659,10 @@ section h2 {
     grid-template-columns: 1fr;
   }
   
+  .quick-water-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
   .goals-form {
     grid-template-columns: 1fr;
   }
@@ -516,6 +686,11 @@ section h2 {
   .entry-values {
     gap: 0.5rem;
   }
+  
+  .bottom-emoji {
+    font-size: 2rem;
+    bottom: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -531,8 +706,16 @@ section h2 {
     padding: 1rem;
   }
   
+  .quick-water-buttons {
+    grid-template-columns: 1fr;
+  }
+  
   .modal {
     margin: 1rem;
     padding: 1.5rem;
+  }
+  
+  .bottom-emoji {
+    font-size: 1.5rem;
   }
 }
